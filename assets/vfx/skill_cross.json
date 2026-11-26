@@ -1,0 +1,23 @@
+{
+ "frames": [],
+ "meta": {
+  "app": "https://github.com/patch-gg/pixelfx",
+  "image": "skill_cross.png",
+  "pixelfx": {
+   "id": "skill_cross",
+   "fps": 30,
+   "loop": false,
+   "frames": 23,
+   "frameSize": [
+    126,
+    99
+   ],
+   "pivot": [
+    15,
+    83
+   ],
+   "columns": 5,
+   "density": 1.6
+  }
+ }
+}

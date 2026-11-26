@@ -1,18 +1,27 @@
 class_name SettingsMenu
 extends CanvasLayer
-## Twilight-themed pause & settings overlay (Esc or HUD Settings button).
+## 16-bit Japanese shrine pixel-art pause & settings overlay (Esc or HUD gear).
 ## Runs during pause (PROCESS_MODE_ALWAYS) and persists via GameSettings.
 
+const PIXEL_FONT := preload("res://assets/ui/pixel_font.ttf")
+const TEX_PANEL := preload("res://assets/ui/panel_frame.png")
+const TEX_BTN_NORM := preload("res://assets/ui/btn_normal.png")
+const TEX_BTN_HOVER := preload("res://assets/ui/btn_hover.png")
+const TEX_BTN_PRESS := preload("res://assets/ui/btn_pressed.png")
+const TEX_TRACK := preload("res://assets/ui/slider_track.png")
+const TEX_FILL := preload("res://assets/ui/slider_fill.png")
+const TEX_FILL_HI := preload("res://assets/ui/slider_fill_hi.png")
+const TEX_GRABBER := preload("res://assets/ui/slider_grabber.png")
+const TEX_GRABBER_HI := preload("res://assets/ui/slider_grabber_hi.png")
+const TEX_DIVIDER := preload("res://assets/ui/divider.png")
+const TEX_GEM_ON := preload("res://assets/ui/gem_on.png")
+const TEX_GEM_OFF := preload("res://assets/ui/gem_off.png")
+
 const PREVIEW_COOLDOWN_MS := 180
-const COLOR_PANEL_BG := Color(0.11, 0.10, 0.15, 0.96)
-const COLOR_BORDER := Color(0.91, 0.85, 0.67, 1.0)
-const COLOR_GOLD := Color(0.95, 0.82, 0.48, 1.0)
-const COLOR_TEXT := Color(0.95, 0.91, 0.85, 1.0)
-const COLOR_MUTED := Color(0.70, 0.68, 0.78, 1.0)
-const COLOR_BTN_BG := Color(0.18, 0.16, 0.24, 1.0)
-const COLOR_BTN_HOVER := Color(0.28, 0.24, 0.36, 1.0)
-const COLOR_BTN_PRESS := Color(0.38, 0.24, 0.28, 1.0)
-const COLOR_ACCENT := Color(0.84, 0.28, 0.26, 1.0)
+const COLOR_INK := Color(0.08, 0.04, 0.06, 1.0)
+const COLOR_GOLD := Color(1.0, 0.92, 0.66, 1.0)
+const COLOR_TEXT := Color(0.95, 0.91, 0.88, 1.0)
+const COLOR_MUTED := Color(0.75, 0.71, 0.78, 1.0)
 
 var _root: Control
 var _master_slider: HSlider
@@ -79,7 +88,9 @@ func _sync_controls() -> void:
 	_weapon_val.text = "%d%%" % int(_weapon_slider.value)
 	_shake_val.text = "%d%%" % int(_shake_slider.value)
 	_hit_stop_btn.text = "开启" if GameSettings.hit_stop_enabled else "关闭"
+	_hit_stop_btn.icon = TEX_GEM_ON if GameSettings.hit_stop_enabled else TEX_GEM_OFF
 	_fullscreen_btn.text = "全屏" if GameSettings.fullscreen else "窗口"
+	_fullscreen_btn.icon = TEX_GEM_ON if GameSettings.fullscreen else TEX_GEM_OFF
 	_syncing = false
 
 
@@ -93,37 +104,34 @@ func _preview_sfx(sound: String, base_db: float) -> void:
 	Sfx.play(sound, base_db, 0.04)
 
 
-func _make_font() -> SystemFont:
-	var font := SystemFont.new()
-	font.font_names = PackedStringArray(["Microsoft YaHei", "SimHei", "PingFang SC", "Noto Sans CJK SC", "sans-serif"])
-	font.antialiasing = TextServer.FONT_ANTIALIASING_LCD
-	return font
-
-
-func _make_box(bg: Color, border: Color, border_w := 1, pad_h := 6, pad_v := 3) -> StyleBoxFlat:
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = bg
-	sb.border_color = border
-	sb.set_border_width_all(border_w)
-	sb.set_corner_radius_all(2)
+func _make_box_tex(tex: Texture2D, mh: int, mv: int, pad_h: float, pad_top: float, pad_bot := -1.0) -> StyleBoxTexture:
+	var sb := StyleBoxTexture.new()
+	sb.texture = tex
+	sb.texture_margin_left = mh
+	sb.texture_margin_right = mh
+	sb.texture_margin_top = mv
+	sb.texture_margin_bottom = mv
+	sb.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_TILE
+	sb.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
 	sb.content_margin_left = pad_h
 	sb.content_margin_right = pad_h
-	sb.content_margin_top = pad_v
-	sb.content_margin_bottom = pad_v
+	sb.content_margin_top = pad_top
+	sb.content_margin_bottom = pad_top if pad_bot < 0.0 else pad_bot
 	return sb
 
 
 func _build_theme() -> Theme:
 	var theme := Theme.new()
-	var font := _make_font()
-	theme.default_font = font
-	theme.default_font_size = 9
+	theme.default_font = PIXEL_FONT
+	theme.default_font_size = 12
 
 	theme.set_color("font_color", "Label", COLOR_TEXT)
+	theme.set_color("font_outline_color", "Label", COLOR_INK)
+	theme.set_constant("outline_size", "Label", 3)
 
-	var btn_norm := _make_box(COLOR_BTN_BG, COLOR_BORDER, 1, 8, 2)
-	var btn_hover := _make_box(COLOR_BTN_HOVER, COLOR_GOLD, 1, 8, 2)
-	var btn_press := _make_box(COLOR_BTN_PRESS, COLOR_GOLD, 1, 8, 2)
+	var btn_norm := _make_box_tex(TEX_BTN_NORM, 5, 5, 8.0, 2.0)
+	var btn_hover := _make_box_tex(TEX_BTN_HOVER, 5, 5, 8.0, 2.0)
+	var btn_press := _make_box_tex(TEX_BTN_PRESS, 5, 5, 8.0, 2.0)
 	theme.set_stylebox("normal", "Button", btn_norm)
 	theme.set_stylebox("hover", "Button", btn_hover)
 	theme.set_stylebox("focus", "Button", btn_hover)
@@ -132,32 +140,25 @@ func _build_theme() -> Theme:
 	theme.set_color("font_hover_color", "Button", COLOR_GOLD)
 	theme.set_color("font_focus_color", "Button", COLOR_GOLD)
 	theme.set_color("font_pressed_color", "Button", COLOR_TEXT)
+	theme.set_color("font_outline_color", "Button", COLOR_INK)
+	theme.set_constant("outline_size", "Button", 3)
+	theme.set_constant("h_separation", "Button", 4)
 
-	var slider_bg := _make_box(Color(0.06, 0.05, 0.09, 1.0), Color(0.45, 0.42, 0.52, 1.0), 1, 0, 2)
-	var slider_fill := _make_box(COLOR_ACCENT, COLOR_ACCENT, 0, 0, 2)
-	var slider_hi := _make_box(COLOR_GOLD, COLOR_GOLD, 0, 0, 2)
-	theme.set_stylebox("slider", "HSlider", slider_bg)
-	theme.set_stylebox("grabber_area", "HSlider", slider_fill)
-	theme.set_stylebox("grabber_area_highlight", "HSlider", slider_hi)
-	var grabber := _make_grabber_texture(COLOR_BORDER)
-	var grabber_hi := _make_grabber_texture(COLOR_GOLD)
-	theme.set_icon("grabber", "HSlider", grabber)
-	theme.set_icon("grabber_highlight", "HSlider", grabber_hi)
+	var track := _make_box_tex(TEX_TRACK, 4, 3, 2.0, 4.0, 5.0)
+	var fill := _make_box_tex(TEX_FILL, 3, 3, 2.0, 4.0, 5.0)
+	var fill_hi := _make_box_tex(TEX_FILL_HI, 3, 3, 2.0, 4.0, 5.0)
+	theme.set_stylebox("slider", "HSlider", track)
+	theme.set_stylebox("grabber_area", "HSlider", fill)
+	theme.set_stylebox("grabber_area_highlight", "HSlider", fill_hi)
+	theme.set_icon("grabber", "HSlider", TEX_GRABBER)
+	theme.set_icon("grabber_highlight", "HSlider", TEX_GRABBER_HI)
 	return theme
-
-
-func _make_grabber_texture(fill: Color) -> ImageTexture:
-	var img := Image.create(7, 10, false, Image.FORMAT_RGBA8)
-	img.fill(Color(0.08, 0.06, 0.10, 1.0))
-	for y in range(1, 9):
-		for x in range(1, 6):
-			img.set_pixel(x, y, fill)
-	return ImageTexture.create_from_image(img)
 
 
 func _build_ui() -> void:
 	_root = Control.new()
 	_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_root.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_root.theme = _build_theme()
 	add_child(_root)
 
@@ -168,28 +169,24 @@ func _build_ui() -> void:
 	_root.add_child(backdrop)
 
 	var panel := PanelContainer.new()
-	panel.position = Vector2(96, 20)
-	panel.size = Vector2(288, 230)
-	var panel_sb := _make_box(COLOR_PANEL_BG, COLOR_BORDER, 2, 14, 10)
-	panel_sb.shadow_color = Color(0.03, 0.02, 0.05, 0.85)
-	panel_sb.shadow_size = 3
-	panel.add_theme_stylebox_override("panel", panel_sb)
+	panel.position = Vector2(82, 14)
+	panel.size = Vector2(316, 242)
+	panel.add_theme_stylebox_override("panel", _make_box_tex(TEX_PANEL, 12, 12, 16.0, 12.0))
 	_root.add_child(panel)
 
 	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 6)
+	vbox.add_theme_constant_override("separation", 5)
 	panel.add_child(vbox)
 
 	var title := Label.new()
 	title.text = "游戏设置"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 11)
 	title.add_theme_color_override("font_color", COLOR_GOLD)
 	vbox.add_child(title)
 
-	var div := ColorRect.new()
-	div.custom_minimum_size = Vector2(0, 1)
-	div.color = Color(0.91, 0.85, 0.67, 0.45)
+	var div := TextureRect.new()
+	div.texture = TEX_DIVIDER
+	div.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 	vbox.add_child(div)
 
 	var master_row := _add_slider_row(vbox, "主音量", 5.0, func(val: float) -> void:
@@ -230,10 +227,6 @@ func _build_ui() -> void:
 		GameSettings.set_fullscreen(not GameSettings.fullscreen)
 	)
 
-	var spacer := Control.new()
-	spacer.custom_minimum_size = Vector2(0, 2)
-	vbox.add_child(spacer)
-
 	var actions := HBoxContainer.new()
 	actions.alignment = BoxContainer.ALIGNMENT_CENTER
 	actions.add_theme_constant_override("separation", 14)
@@ -241,7 +234,7 @@ func _build_ui() -> void:
 
 	var reset_btn := Button.new()
 	reset_btn.text = "恢复默认"
-	reset_btn.custom_minimum_size = Vector2(76, 20)
+	reset_btn.custom_minimum_size = Vector2(86, 22)
 	reset_btn.pressed.connect(func() -> void:
 		GameSettings.reset_defaults()
 		_preview_sfx("land", -4.0)
@@ -250,14 +243,13 @@ func _build_ui() -> void:
 
 	var resume_btn := Button.new()
 	resume_btn.text = "继续游戏"
-	resume_btn.custom_minimum_size = Vector2(76, 20)
+	resume_btn.custom_minimum_size = Vector2(86, 22)
 	resume_btn.pressed.connect(close)
 	actions.add_child(resume_btn)
 
 	var hint := Label.new()
-	hint.text = "A/D 移动 · K/空格 跳跃 · J 攻击 · L/Shift 冲刺 · Esc 设置"
+	hint.text = "A/D移动  K跳  J攻  L冲  Esc设置"
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint.add_theme_font_size_override("font_size", 7)
 	hint.add_theme_color_override("font_color", COLOR_MUTED)
 	vbox.add_child(hint)
 
@@ -269,20 +261,21 @@ func _add_slider_row(parent: VBoxContainer, label_text: String, step: float, on_
 
 	var lbl := Label.new()
 	lbl.text = label_text
-	lbl.custom_minimum_size = Vector2(62, 0)
+	lbl.custom_minimum_size = Vector2(56, 0)
 	row.add_child(lbl)
 
 	var slider := HSlider.new()
 	slider.min_value = 0.0
 	slider.max_value = 100.0
 	slider.step = step
+	slider.custom_minimum_size = Vector2(0, 13)
 	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	slider.value_changed.connect(on_change)
 	row.add_child(slider)
 
 	var val_lbl := Label.new()
-	val_lbl.custom_minimum_size = Vector2(30, 0)
+	val_lbl.custom_minimum_size = Vector2(36, 0)
 	val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	val_lbl.add_theme_color_override("font_color", COLOR_GOLD)
 	row.add_child(val_lbl)
@@ -296,7 +289,7 @@ func _add_toggle_row(parent: VBoxContainer, label_text: String, on_press: Callab
 
 	var lbl := Label.new()
 	lbl.text = label_text
-	lbl.custom_minimum_size = Vector2(62, 0)
+	lbl.custom_minimum_size = Vector2(56, 0)
 	row.add_child(lbl)
 
 	var spacer := Control.new()
@@ -304,7 +297,7 @@ func _add_toggle_row(parent: VBoxContainer, label_text: String, on_press: Callab
 	row.add_child(spacer)
 
 	var btn := Button.new()
-	btn.custom_minimum_size = Vector2(64, 18)
+	btn.custom_minimum_size = Vector2(68, 20)
 	btn.pressed.connect(on_press)
 	row.add_child(btn)
 	return btn

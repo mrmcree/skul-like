@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="SkillData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/skill_data.gd" id="1_skill"]
+[ext_resource type="Script" path="res://scripts/combat/attack_data.gd" id="2_attack"]
+
+[sub_resource type="Resource" id="Resource_upcut"]
+script = ExtResource("2_attack")
+damage = 18
+startup = 0.04
+active = 0.06
+recovery = 0.24
+hitbox_size = Vector2(40, 30)
+hitbox_offset = Vector2(22, -16)
+heavy = true
+knockback = Vector2(180, -130)
+forward_step = 30.0
+hit_stop = 0.12
+shake_strength = 3.0
+
+[resource]
+script = ExtResource("1_skill")
+display_name = "十字斩"
+kind = 3
+cooldown = 0.0
+anim_index = 0
+follow_up = SubResource("Resource_upcut")
+anim2_index = 1
+hang = true
+vfx = "skill_cross"
+vfx_lead = 0.06
+vfx_offset = Vector2(0, 0)
+swing_sound = "katana_slash_1"
+damage = 10
+startup = 0.1
+active = 0.05
+recovery = 0.0
+hitbox_size = Vector2(40, 26)
+hitbox_offset = Vector2(22, -14)
+heavy = false
+knockback = Vector2(30, 0)
+forward_step = 40.0
+hit_stop = 0.03
+shake_strength = 1.0

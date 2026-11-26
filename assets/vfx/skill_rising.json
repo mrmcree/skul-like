@@ -1,0 +1,23 @@
+{
+ "frames": [],
+ "meta": {
+  "app": "https://github.com/patch-gg/pixelfx",
+  "image": "skill_rising.png",
+  "pixelfx": {
+   "id": "Uppercut",
+   "fps": 30,
+   "loop": false,
+   "frames": 19,
+   "frameSize": [
+    109,
+    105
+   ],
+   "pivot": [
+    43,
+    103
+   ],
+   "columns": 5,
+   "density": 1.0
+  }
+ }
+}

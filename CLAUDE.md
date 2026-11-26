@@ -69,6 +69,7 @@ shaders/flash.gdshader   受击闪白 + 换色（精英骷髅的蓝甲）
 | `tools/process_vfx.py` | 太刀刀光图集 → `slash_1/2/3.png` |
 | `tools/tint_vfx.py` | 特效换配色、清除前几帧；原图备份在 `assets/raw/vfx_originals/` |
 | `tools/gen_ui.py` / `tools/gen_sfx.py` | 生成 HUD 像素图 / 合成音效 |
+| `tools/master_sfx.py` | 给武器和受击音效叠加金属刀鸣、低频重量、撞击声并统一响度；始终从 `assets/raw/sfx_originals/` 的原始录音开始处理，重复运行不会叠加两次 |
 | `tools/pixel_tools.py` | 共用函数：抠图、去色边、按块取主色缩小、调色板、描边、无缝拼接 |
 | **素材工作室** `python tools/asset_studio.py` → http://127.0.0.1:8765 | 网页版：提示词生成（可接入硅基流动 LLM 扩写/润色）、上传原图、编辑配置、一键处理、自动质检、序列帧播放。新版前端在 `tools/studio/web`（React + Vite，`npm install && npm run build` 后由后端提供），旧版静态页在 `tools/studio/static` |
 
@@ -78,6 +79,13 @@ shaders/flash.gdshader   受击闪白 + 换色（精英骷髅的蓝甲）
 - 一张图最多 5 行动作；同一个角色的多张图都上传同一张参考图。
 - AI 的"像素画"大多没有严格的网格。先用自相关检测原图的像素格大小：有规整网格的（比如地面是 6px）按 `1/格子` 精确缩小，没有网格的按"每块取出现最多的颜色"来缩小。
 - 豆包和即梦的水印在右下角，用 `watermark_box` 精确抹掉，避免把贴近角落的帧也切掉。
+
+## 项目技能（.claude/skills）
+
+- `game-feel`：顿帧、震屏、缓动、闪白、击退的做法和数值分档。改打击感时用。
+- `game-ui-ux`：HUD 和菜单的锚点、缩放、手柄焦点、界面栈、无障碍要求。改 UI 时用。
+- 来源：gamedev-skills/awesome-gamedev-agent-skills（Apache-2.0，许可证见 `.claude/skills/LICENSE-gamedev-skills.txt`）。
+- **和本项目约定冲突时，以本文件为准**：game-ui-ux 建议把 viewport 设成 1920×1080，但本项目的逻辑分辨率固定是 480×270（见上文"坐标与像素精度"），不要改。
 
 ## 密钥
 

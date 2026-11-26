@@ -19,9 +19,11 @@ static var _frames_cache: Dictionary = {}
 ## Create an effect as a child of `parent` with its pivot at world position `at`.
 ## Returns null (and logs an error) if the effect is unknown or the parent is missing.
 static func spawn(effect_name: String, parent: Node, at: Vector2, direction := 1, z := 1) -> Vfx:
-	if parent == null or not VfxCatalog.EFFECTS.has(effect_name):
-		push_error("Vfx.spawn: cannot spawn '%s'" % effect_name)
+	if parent == null:
+		push_error("Vfx.spawn: no parent for '%s'" % effect_name)
 		return null
+	if VfxCatalog.info(effect_name).is_empty():
+		return null   # sheet not exported yet; VfxCatalog already warned once
 	var fx := Vfx.new()
 	fx.effect = effect_name
 	fx.facing = direction
@@ -32,7 +34,7 @@ static func spawn(effect_name: String, parent: Node, at: Vector2, direction := 1
 
 
 func _ready() -> void:
-	var info: Dictionary = VfxCatalog.EFFECTS.get(effect, {})
+	var info: Dictionary = VfxCatalog.info(effect)
 	if info.is_empty():
 		push_error("Vfx: unknown effect '%s'" % effect)
 		queue_free()

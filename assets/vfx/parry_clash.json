@@ -1,0 +1,23 @@
+{
+ "frames": [],
+ "meta": {
+  "app": "https://github.com/patch-gg/pixelfx",
+  "image": "parry_clash.png",
+  "pixelfx": {
+   "id": "Parry",
+   "fps": 30,
+   "loop": false,
+   "frames": 26,
+   "frameSize": [
+    173,
+    100
+   ],
+   "pivot": [
+    84,
+    85
+   ],
+   "columns": 4,
+   "density": 2.0
+  }
+ }
+}

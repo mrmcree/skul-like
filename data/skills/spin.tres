@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="SkillData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/skill_data.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+display_name = "旋风斩"
+kind = 1
+cooldown = 0.0
+anim = &"attack_spin"
+anim_index = 0
+hang = true
+vfx = "skill_spin"
+vfx_back = "skill_spin_back"
+vfx_lead = 0.17
+vfx_offset = Vector2(0, -5)
+swing_sound = "katana_slash_1"
+damage = 18
+startup = 0.22
+active = 0.06
+recovery = 0.26
+hitbox_size = Vector2(48, 24)
+hitbox_offset = Vector2(0, -13)
+heavy = false
+radial = true
+knockback = Vector2(170, -90)
+forward_step = 0.0
+hit_stop = 0.08
+shake_strength = 2.0

@@ -1,0 +1,23 @@
+{
+ "frames": [],
+ "meta": {
+  "app": "https://github.com/patch-gg/pixelfx",
+  "image": "blink_in.png",
+  "pixelfx": {
+   "id": "blink_in",
+   "fps": 60,
+   "loop": false,
+   "frames": 36,
+   "frameSize": [
+    101,
+    86
+   ],
+   "pivot": [
+    46,
+    70
+   ],
+   "columns": 6,
+   "density": 1.0
+  }
+ }
+}

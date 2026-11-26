@@ -36,6 +36,8 @@ const RECOVERY_FRAMES: Array[int] = [5]
 @export var attack_data: AttackData = preload("res://data/attacks/skeleton_thrust.tres")
 @export_group("Reactions")
 @export var stagger_time := 0.3
+## Off balance after the player parries this enemy's attack (ignores super armor).
+@export var parried_time := 0.9
 ## Light (non-heavy) hits don't interrupt this enemy's attack — only finishers do.
 @export var super_armor := false
 @export var respawn_delay := 3.0
@@ -55,6 +57,7 @@ var _cooldown := 0.0
 var _hitbox_opened := false
 var _spawn_position := Vector2.ZERO
 var _telegraph_tween: Tween
+var _stagger_for := 0.3
 
 @onready var _sprite: SkeletonSprite = $Body/Sprite
 @onready var _hitbox: Hitbox = $Hitbox
@@ -66,6 +69,7 @@ var _telegraph_tween: Tween
 
 
 func _ready() -> void:
+	add_to_group(&"enemy")
 	hp = max_hp
 	_spawn_position = global_position
 	_face(facing)
@@ -88,7 +92,7 @@ func _physics_process(delta: float) -> void:
 		State.ATTACK:
 			_process_attack(delta)
 		State.HURT:
-			if _state_time >= stagger_time:
+			if _state_time >= _stagger_for:
 				_enter(State.CHASE)
 	_move(delta)
 
@@ -174,7 +178,7 @@ func _process_attack(delta: float) -> void:
 			_hitbox_opened = true
 			velocity.x = facing * attack_data.forward_step
 			_hitbox.activate(attack_data, facing)
-			Sfx.play("spear_thrust", -12.0, 0.10)
+			Sfx.play("spear_thrust", -4.0, 0.10)
 		_sprite.frame = _pick(ACTIVE_FRAMES, (t - attack_data.startup) / attack_data.active)
 	elif t < active_end + attack_data.recovery:
 		_hitbox.deactivate()
@@ -219,7 +223,25 @@ func _on_hurt(hit: HitInfo) -> void:
 		return
 	velocity = hit.knockback
 	_face(-hit.direction)
+	_stagger_for = stagger_time
 	_enter(State.HURT)
+
+
+## For the player's 瞬身斩 target search.
+func is_targetable() -> bool:
+	return state != State.DEAD
+
+
+## The player parried our attack: thrown back and open for a while.
+func on_parried(direction: int) -> void:
+	if state == State.DEAD:
+		return
+	velocity = Vector2(direction * 120.0, -60.0)
+	_face(-direction)
+	_cooldown = attack_cooldown
+	_stagger_for = parried_time
+	_enter(State.HURT)
+	_hit_reaction.react(HitInfo.new(0, velocity, direction, 0.14, true))
 
 
 func _die() -> void:
@@ -269,7 +291,7 @@ func _move(delta: float) -> void:
 		velocity.y = -fall_speed * bounce_factor
 		Vfx.spawn("dust_land", get_parent(), global_position, 1, 0)
 		Sfx.play("land", -2.0)
-		GameFeel.shake(1.0, 0.08, Vector2.DOWN)
+		GameFeel.shake(1.0, Vector2.DOWN)
 
 
 func _face(direction: int) -> void:

@@ -22,3 +22,51 @@ const EFFECTS := {
 	"slash_2": {"frame_size": Vector2i(68, 84), "frames": 5, "columns": 5, "fps": 32.0, "loop": false, "pivot": Vector2(18, 48), "density": 2.0},
 	"slash_3": {"frame_size": Vector2i(120, 56), "frames": 5, "columns": 5, "fps": 28.0, "loop": false, "pivot": Vector2(18, 28), "density": 2.0},
 }
+
+
+## Effects exported straight from pixelfx (`node tools/render.mjs <id> --sheet`, or
+## tools/export_skill_vfx.py) need no entry above: put <name>.png and <name>.json in
+## assets/vfx/ and the JSON's meta.pixelfx (frame size, frames, columns, fps, loop, pivot) is used.
+static var _json_cache: Dictionary = {}
+
+
+## Metadata for an effect, or {} if it has no sheet (warns once per name).
+static func info(effect_name: String) -> Dictionary:
+	if EFFECTS.has(effect_name):
+		return EFFECTS[effect_name]
+	if _json_cache.has(effect_name):
+		return _json_cache[effect_name]
+	var result := _read_pixelfx_json(effect_name)
+	if result.is_empty():
+		push_warning("VfxCatalog: no sheet for '%s' (run python tools/export_skill_vfx.py)" % effect_name)
+	_json_cache[effect_name] = result
+	return result
+
+
+static func _read_pixelfx_json(effect_name: String) -> Dictionary:
+	var json_path := SHEET_DIR + effect_name + ".json"
+	if not ResourceLoader.exists(SHEET_DIR + effect_name + ".png"):
+		return {}
+	var data: Variant = null
+	if ResourceLoader.exists(json_path):
+		var res := load(json_path)
+		if res is JSON:
+			data = (res as JSON).data
+	if data == null and FileAccess.file_exists(json_path):
+		data = JSON.parse_string(FileAccess.get_file_as_string(json_path))
+	if not data is Dictionary:
+		return {}
+	var meta: Dictionary = (data as Dictionary).get("meta", {}).get("pixelfx", {})
+	if meta.is_empty():
+		return {}
+	var size: Array = meta["frameSize"]
+	var pivot: Array = meta["pivot"]
+	return {
+		"frame_size": Vector2i(int(size[0]), int(size[1])),
+		"frames": int(meta["frames"]),
+		"columns": int(meta["columns"]),
+		"fps": float(meta["fps"]),
+		"loop": bool(meta["loop"]),
+		"pivot": Vector2(float(pivot[0]), float(pivot[1])),
+		"density": float(meta.get("density", 1.0)),
+	}

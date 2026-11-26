@@ -1,0 +1,23 @@
+{
+ "frames": [],
+ "meta": {
+  "app": "https://github.com/patch-gg/pixelfx",
+  "image": "skill_issen.png",
+  "pixelfx": {
+   "id": "Thrust",
+   "fps": 30,
+   "loop": false,
+   "frames": 19,
+   "frameSize": [
+    170,
+    71
+   ],
+   "pivot": [
+    8,
+    58
+   ],
+   "columns": 3,
+   "density": 1.0
+  }
+ }
+}

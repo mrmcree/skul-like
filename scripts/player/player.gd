@@ -1,12 +1,12 @@
 class_name Player
 extends CharacterBody2D
 ## Greybox player: run, jump (coyote time + buffer + variable height), double jump,
-## dash with i-frames, drop through one-way platforms, 3-hit combo.
+## dash with i-frames, drop through one-way platforms, 3-hit combo, 3 skills (PlayerSkills).
 ## Every tuning value is exported: select the Player node and tweak it in the Inspector.
 
 signal coins_changed(coins: int)
 
-enum State { NORMAL, DASH, ATTACK, HURT, DEAD }
+enum State { NORMAL, DASH, ATTACK, SKILL, PARRY, HURT, DEAD }
 
 const ONE_WAY_LAYER := 6
 const DROP_THROUGH_TIME := 0.25
@@ -48,6 +48,19 @@ const DEFAULT_COMBO_PATHS: Array[String] = [
 ## Number of single air slashes allowed before touching the ground (0 = disable air attack).
 @export var max_air_attacks := 1
 
+@export_group("Skills")
+## Leave empty to use data/skills/issen, spin, rising (keys U / I / O).
+@export var skills: Array[SkillData] = []
+
+@export_group("Parry")
+## Seconds after pressing parry (P) during which an incoming hit is deflected.
+@export var parry_window := 0.18
+## Stuck in place after a missed parry (the risk).
+@export var parry_whiff_recovery := 0.22
+## After a successful parry: untouchable and free to act after this beat.
+@export var parry_success_time := 0.12
+@export var parry_invincible_time := 0.35
+
 @export_group("Damage")
 ## Seconds without control after being hit.
 @export var hurt_time := 0.3
@@ -78,6 +91,11 @@ var _attack_in_air := false
 var _was_on_floor := true
 var _squash_tween: Tween
 var _fx := PlayerFeedback.new(self)
+var _skills: PlayerSkills
+var _parry_time := 0.0
+var _parry_succeeded := false
+var _parry_buffer_timer := 0.0
+var _post_parry_timer := 0.0
 
 @onready var _visual: Node2D = $Visual
 @onready var _body: Node2D = $Visual/Body
@@ -95,6 +113,7 @@ func _ready() -> void:
 	if combo.is_empty():
 		for path in DEFAULT_COMBO_PATHS:
 			combo.append(load(path) as AttackData)
+	_skills = PlayerSkills.new(self, skills)
 	_hitbox.hit_landed.connect(_on_hit_landed)
 	_hurtbox.hurt.connect(_on_hurt)
 	health.died.connect(_die)
@@ -110,11 +129,15 @@ func _physics_process(delta: float) -> void:
 			_process_dash()
 		State.ATTACK:
 			_process_attack(delta)
+		State.SKILL:
+			_skills.process(delta)
+		State.PARRY:
+			_process_parry(delta)
 		State.HURT, State.DEAD:
 			_process_stunned(delta)
 	move_and_slide()
 	_after_move()
-	_hurtbox.invulnerable = state == State.DEAD or is_invincible or health.is_invincible()
+	_hurtbox.invulnerable = state == State.DEAD or is_invincible or _post_parry_timer > 0.0 or health.is_invincible()
 	if state == State.NORMAL or state == State.DASH:
 		_sprite.update_locomotion(is_on_floor(), velocity, state == State.DASH)
 
@@ -127,6 +150,9 @@ func _tick_timers(delta: float) -> void:
 	_attack_buffer_timer = maxf(_attack_buffer_timer - delta, 0.0)
 	_dash_timer = maxf(_dash_timer - delta, 0.0)
 	_dash_cooldown_timer = maxf(_dash_cooldown_timer - delta, 0.0)
+	_skills.tick(delta)
+	_parry_buffer_timer = maxf(_parry_buffer_timer - delta, 0.0)
+	_post_parry_timer = maxf(_post_parry_timer - delta, 0.0)
 	if _drop_timer > 0.0:
 		_drop_timer -= delta
 		if _drop_timer <= 0.0:
@@ -139,11 +165,26 @@ func _buffer_inputs() -> void:
 		_jump_buffer_timer = jump_buffer_time
 	if Input.is_action_just_pressed("attack"):
 		_attack_buffer_timer = attack_buffer_time
+	if InputMap.has_action(&"parry") and Input.is_action_just_pressed(&"parry"):
+		_parry_buffer_timer = attack_buffer_time
 
 
 ## 1.0 when dash is ready, rising from 0 while it recharges (drives the HUD bar).
 func get_dash_ready_ratio() -> float:
 	return 1.0 - clampf(_dash_cooldown_timer / maxf(dash_cooldown, 0.001), 0.0, 1.0)
+
+
+## Same for skill `index` (0..2), for the HUD.
+func get_skill_ready_ratio(index: int) -> float:
+	return _skills.ready_ratio(index) if _skills else 0.0
+
+
+func get_skill_count() -> int:
+	return _skills.count() if _skills else 0
+
+
+func get_skill_cooldown(index: int) -> float:
+	return _skills.skills[index].cooldown if _skills and index < _skills.count() else 0.0
 
 
 func add_coins(amount: int) -> void:
@@ -171,6 +212,10 @@ func _process_normal(delta: float) -> void:
 		velocity.y *= jump_cut_multiplier
 
 	if Input.is_action_just_pressed("dash") and _try_start_dash():
+		return
+	if _skills.try_start_buffered():
+		return
+	if _try_start_parry():
 		return
 	if _attack_buffer_timer > 0.0 and (is_on_floor() or _air_attacks_left > 0):
 		_start_attack(0)
@@ -323,6 +368,10 @@ func _move_during_attack(delta: float) -> void:
 func _try_cancel_attack() -> bool:
 	if Input.is_action_just_pressed("dash") and _try_start_dash():
 		return true
+	if _skills.try_start_buffered():
+		return true
+	if _try_start_parry():
+		return true
 	if _jump_buffer_timer > 0.0 and (is_on_floor() or _coyote_timer > 0.0):
 		state = State.NORMAL
 		_do_jump()
@@ -334,11 +383,70 @@ func _on_hit_landed(target: Hurtbox, attack: AttackData) -> void:
 	_fx.on_hit(target, attack)
 
 
+# --- PARRY state ----------------------------------------------------------
+# Press P: a short guard window. A hit inside it is deflected (no damage), the attacker
+# is knocked off balance, and the samurai is briefly untouchable and free to punish.
+# A missed parry leaves a short recovery where you can be hit.
+
+func _try_start_parry() -> bool:
+	if _parry_buffer_timer <= 0.0:
+		return false
+	_parry_buffer_timer = 0.0
+	_skills.interrupt()
+	_hitbox.deactivate()
+	_attack_in_air = false
+	state = State.PARRY
+	_parry_time = 0.0
+	_parry_succeeded = false
+	if _input_x() != 0.0:
+		_set_facing(_input_x())
+	velocity.x *= 0.2
+	if not is_on_floor():
+		velocity.y = minf(velocity.y, 0.0)
+	_sprite.play_attack(0)
+	_sprite.frame = 1          # blade raised: guard pose
+	_fx.on_parry_start()
+	return true
+
+
+func _process_parry(delta: float) -> void:
+	_parry_time += delta
+	if is_on_floor():
+		velocity.x = move_toward(velocity.x, 0.0, ground_friction * delta)
+	else:
+		_apply_gravity(delta, air_attack_fall_speed)
+	if _parry_succeeded:
+		_sprite.frame = 2 if _parry_time < parry_success_time * 0.5 else 3
+		if _parry_time >= parry_success_time:
+			state = State.NORMAL
+			_try_cancel_attack()   # buffered attack / skill / jump / dash fires right away
+		return
+	if _parry_time > parry_window:
+		_sprite.frame = 4 if _parry_time < parry_window + parry_whiff_recovery * 0.5 else 5
+	if _parry_time >= parry_window + parry_whiff_recovery:
+		state = State.NORMAL
+
+
+func _parry_success(hit: HitInfo) -> void:
+	_parry_succeeded = true
+	_parry_time = 0.0
+	_post_parry_timer = parry_invincible_time
+	_set_facing(-hit.direction)   # face the attacker
+	velocity = Vector2(hit.direction * 60.0, minf(velocity.y, 0.0))
+	if hit.source and hit.source.has_method("on_parried"):
+		hit.source.call("on_parried", -hit.direction)
+	_fx.on_parry(hit)
+
+
 # --- HURT / DEAD states ---------------------------------------------------
 
 func _on_hurt(hit: HitInfo) -> void:
 	if _hurtbox.invulnerable:
 		return
+	if state == State.PARRY and not _parry_succeeded and _parry_time <= parry_window:
+		_parry_success(hit)
+		return
+	_skills.interrupt()
 	_hitbox.deactivate()
 	_attack_in_air = false
 	is_invincible = false
@@ -364,6 +472,7 @@ func _process_stunned(delta: float) -> void:
 
 
 func _die() -> void:
+	_skills.interrupt()
 	_hitbox.deactivate()
 	_attack_in_air = false
 	state = State.DEAD
@@ -392,6 +501,7 @@ func _after_move() -> void:
 		_air_jumps_left = max_air_jumps
 		_air_dashes_left = max_air_dashes
 		_air_attacks_left = max_air_attacks
+		_skills.on_landed()
 		if state == State.ATTACK and _attack_in_air:
 			_hitbox.deactivate()
 			state = State.NORMAL

@@ -38,6 +38,10 @@ PRESETS: dict[str, list[Action]] = {
         Action("attack_3", 6, "后撤蓄力后全力突刺"), Action("hurt", 3, "受击后仰"),
         Action("death", 6, "单膝跪地后倒下"),
     ],
+    "武士技能（旋风斩+燕返·升）": [
+        Action("attack_spin", 6, "旋风斩：压低蓄力，原地转身一整圈横扫，中间一帧正面一帧背面，最后收势"),
+        Action("attack_rising", 6, "燕返·升：深蹲蓄力，蹬地起跳从下往上挑斩，腾空最高点手臂伸直，空中收刀下落"),
+    ],
     "近战小怪": [
         Action("idle", 6, "待机呼吸"), Action("walk", 6, "行走循环"),
         Action("attack", 6, "攻击：蓄力、出招、收招"), Action("hit", 3, "受击后仰"),

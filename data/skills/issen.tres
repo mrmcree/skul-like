@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="SkillData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/skill_data.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+display_name = "一闪"
+kind = 0
+cooldown = 0.0
+anim_index = 2
+travel = 100.0
+sheath_delay = 0.22
+hang = true
+vfx = "skill_issen"
+vfx_offset = Vector2(0, 10)
+swing_sound = "dash"
+damage = 30
+startup = 0.16
+active = 0.09
+recovery = 0.28
+hitbox_size = Vector2(30, 24)
+hitbox_offset = Vector2(0, -12)
+heavy = true
+knockback = Vector2(140, -120)
+forward_step = 0.0
+hit_stop = 0.12
+shake_strength = 3.5

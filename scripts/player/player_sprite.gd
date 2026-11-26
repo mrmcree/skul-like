@@ -21,6 +21,10 @@ const ANIMS := {
 	&"attack_3": [6, 0, 6, 10.0, false],
 	&"hurt": [7, 0, 3, 12.0, false],
 	&"death": [8, 0, 6, 10.0, false],
+	# Skill rows from assets/raw/hero/Skills.png. Used only once the processed sheet has them
+	# (see _has_row); until then skills fall back to the combo rows.
+	&"attack_spin": [9, 0, 6, 10.0, false],
+	&"attack_rising": [10, 0, 6, 10.0, false],
 }
 const ATTACK_ANIMS: Array[StringName] = [&"attack_1", &"attack_2", &"attack_3"]
 ## Frames shown during [wind-up, swing, follow-through] for each attack row.
@@ -30,14 +34,25 @@ const ATTACK_PHASES := {
 	&"attack_1": [[0, 1], [2], [3, 4, 5]],
 	# The thrust row pulls back for three frames and only stabs on frame 3.
 	&"attack_3": [[0, 1, 2], [3], [4, 5]],
+	# The whole turn plays during the wind-up (crouch, front, facing us, back) while the slash
+	# effect draws its ring; the hit lands on frame 4 as she turns back to the front.
+	&"attack_spin": [[0, 1, 2, 3], [4], [5]],
+	# Crouch, leap and cut upward, then the airborne follow-through.
+	&"attack_rising": [[0, 1], [2, 3], [4, 5]],
 }
 
 static var _frames: SpriteFrames
+static var _available: Dictionary = {}
 
 
 func _ready() -> void:
 	if _frames == null:
-		_frames = SheetFrames.build(SHEET, FRAME_SIZE, ANIMS)
+		var anims := {}
+		for anim: StringName in ANIMS:
+			if _has_row(int(ANIMS[anim][0])):
+				anims[anim] = ANIMS[anim]
+				_available[anim] = true
+		_frames = SheetFrames.build(SHEET, FRAME_SIZE, anims)
 	sprite_frames = _frames
 	centered = false
 	offset = -FEET
@@ -89,3 +104,19 @@ func show_attack_time(t: float, attack: AttackData) -> void:
 		progress = (t - attack.startup) / maxf(attack.active, 0.001)
 	var frames: Array = phases[phase]
 	frame = frames[clampi(int(progress * frames.size()), 0, frames.size() - 1)]
+
+
+## Play a skill's own row if the sheet has it, else combo row `fallback_index`. Frames are then
+## driven by show_attack_time(), like play_attack().
+func play_skill(anim: StringName, fallback_index: int) -> void:
+	if anim != &"" and _available.has(anim):
+		speed_scale = 1.0
+		play(anim)
+		pause()
+		frame = 0
+	else:
+		play_attack(fallback_index)
+
+
+static func _has_row(row: int) -> bool:
+	return SHEET.get_height() >= (row + 1) * FRAME_SIZE.y

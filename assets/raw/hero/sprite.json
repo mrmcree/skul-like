@@ -94,6 +94,22 @@
       "frames": 6,
       "watermark": true,
       "scale_from": "idle"
+    },
+    {
+      "name": "attack_spin",
+      "file": "Skills.png",
+      "row": 0,
+      "frames": 6,
+      "watermark": true,
+      "scale_from": "idle"
+    },
+    {
+      "name": "attack_rising",
+      "file": "Skills.png",
+      "row": 1,
+      "frames": 6,
+      "watermark": true,
+      "scale_from": "idle"
     }
   ],
   "feet_ignore_bright": true,

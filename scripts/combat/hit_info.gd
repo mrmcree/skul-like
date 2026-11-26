@@ -11,6 +11,8 @@ var direction: int
 var hit_stop: float
 ## Finishers / big hits: stronger reaction, screen flash, heavy sound.
 var heavy: bool
+## The node that owns the attacking Hitbox (so a parry can stagger it). May be null.
+var source: Node
 
 
 func _init(p_damage: int, p_knockback: Vector2, p_direction: int, p_hit_stop: float, p_heavy: bool) -> void:

@@ -338,6 +338,11 @@ def load_rows(raw_dir: Path, cfg: Config) -> list[list[Cut]]:
     rows: list[list[Cut]] = []
     cache: dict = {}
     for strip in cfg.strips:
+        if not (raw_dir / strip.file).exists():
+            # e.g. a new Skills.png not generated yet; the game falls back for missing rows.
+            # Keep such strips at the end of the config, or the rows after them shift up.
+            print(f"skip {strip.name}: {strip.file} not found")
+            continue
         if strip.row is not None:
             rgb, sheet = sheet_rows(raw_dir, cfg, strip.file, cache)
             frames = sheet[strip.row]

@@ -1,0 +1,5 @@
+Font: Fusion Pixel Font 12px (zh_hans)
+Author: TakWolf
+License: SIL Open Font License 1.1 (OFL-1.1)
+Source: https://github.com/TakWolf/fusion-pixel-font
+Extracted file: fusion-pixel-12px-proportional-zh_hans.ttf

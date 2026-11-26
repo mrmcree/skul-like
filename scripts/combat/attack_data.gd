@@ -19,11 +19,15 @@ extends Resource
 @export var hitbox_offset := Vector2(14, -11)
 
 @export_group("Feel")
-## Heavy hits get the big spark, heavy sound, screen flash and stronger recoil.
+## Heavy hits get the big spark, heavy sound and stronger recoil.
 @export var heavy := false
 ## Pushes the target away (x is flipped automatically by facing).
 @export var knockback := Vector2(80, 0)
+## Push each target away from the attacker's centre instead of along facing (spins, novas).
+@export var radial := false
 ## Small forward lunge when the attack starts on the ground.
 @export var forward_step := 50.0
+## Freeze on impact, real seconds. Light 0.04-0.06, heavy 0.10-0.15 (keep under ~0.15).
 @export var hit_stop := 0.04
-@export var shake_strength := 0.0
+## Camera trauma: 1 light (0.25 trauma), 2 medium, 3 heavy (0.75), 4 max. Shake = trauma².
+@export_range(0.0, 4.0, 0.5) var shake_strength := 0.0

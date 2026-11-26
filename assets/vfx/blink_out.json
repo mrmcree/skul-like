@@ -1,0 +1,23 @@
+{
+ "frames": [],
+ "meta": {
+  "app": "https://github.com/patch-gg/pixelfx",
+  "image": "blink_out.png",
+  "pixelfx": {
+   "id": "blink_out",
+   "fps": 60,
+   "loop": false,
+   "frames": 44,
+   "frameSize": [
+    112,
+    88
+   ],
+   "pivot": [
+    50,
+    72
+   ],
+   "columns": 6,
+   "density": 1.0
+  }
+ }
+}

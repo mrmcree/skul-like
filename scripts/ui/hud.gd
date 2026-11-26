@@ -1,7 +1,8 @@
 class_name Hud
 extends CanvasLayer
 ## Pixel HUD (art from tools/gen_ui.py): portrait, hearts (HP_PER_HEART each, with
-## half hearts), an energy bar showing dash readiness, and the coin counter.
+## half hearts), an energy bar showing dash readiness, skill cooldown slots (U / I / O)
+## under it, and the coin counter.
 
 const HEART_FULL := preload("res://assets/ui/heart_full.png")
 const HEART_HALF := preload("res://assets/ui/heart_half.png")
@@ -10,50 +11,50 @@ const DIGITS := preload("res://assets/ui/digits.png")
 const DIGIT_SIZE := Vector2i(7, 9)
 const HP_PER_HEART := 20
 const COIN_DIGITS := 3
+const SKILL_SLOT_POS := Vector2(36, 31)
+const SKILL_SLOT_SIZE := Vector2(20, 5)
+const SKILL_SLOT_GAP := 2.0
+const SKILL_BG := Color(0.09, 0.07, 0.11, 0.9)
+const SKILL_CHARGING := Color(0.42, 0.4, 0.48)
+const SKILL_READY := Color(0.89, 0.36, 0.31)
 
 @export var player: Player
 
 var _digit_textures: Array[AtlasTexture] = []
+var _skill_fills: Array[ColorRect] = []
+var _skill_was_ready: Array[bool] = []
+## Skill index shown by each slot (skills without a cooldown get no slot).
+var _skill_slots: Array[int] = []
 
 @onready var _hearts: HBoxContainer = $Hearts
 @onready var _bar_fill: ColorRect = $Bar/Fill
 @onready var _digits: HBoxContainer = $Coins/Digits
-@onready var _settings_btn: Button = $SettingsBtn
+@onready var _settings_btn: TextureButton = $SettingsBtn
 @onready var _bar_width := _bar_fill.size.x
 
 
 func _ready() -> void:
 	_build_digits()
-	_style_settings_button()
+	_build_skill_slots.call_deferred()   # after the player's _ready built its skills
+	_settings_btn.pressed.connect(GameSettings.request_toggle_menu)
 	player.health.changed.connect(_on_health_changed)
 	player.coins_changed.connect(_on_coins_changed)
 	_on_health_changed(player.health.hp, player.health.max_hp)
 	_on_coins_changed(player.coins)
 
 
-func _style_settings_button() -> void:
-	var font := SystemFont.new()
-	font.font_names = PackedStringArray(["Microsoft YaHei", "SimHei", "PingFang SC", "Noto Sans CJK SC", "sans-serif"])
-	_settings_btn.add_theme_font_override("font", font)
-	_settings_btn.add_theme_font_size_override("font_size", 7)
-	_settings_btn.add_theme_color_override("font_color", Color(0.95, 0.91, 0.85, 1.0))
-	_settings_btn.add_theme_color_override("font_hover_color", Color(0.95, 0.82, 0.48, 1.0))
-	var norm := StyleBoxFlat.new()
-	norm.bg_color = Color(0.13, 0.12, 0.16, 0.86)
-	norm.border_color = Color(0.91, 0.85, 0.67, 0.9)
-	norm.set_border_width_all(1)
-	norm.set_corner_radius_all(2)
-	var hover := norm.duplicate() as StyleBoxFlat
-	hover.bg_color = Color(0.24, 0.21, 0.30, 0.95)
-	hover.border_color = Color(0.95, 0.82, 0.48, 1.0)
-	_settings_btn.add_theme_stylebox_override("normal", norm)
-	_settings_btn.add_theme_stylebox_override("hover", hover)
-	_settings_btn.add_theme_stylebox_override("pressed", hover)
-	_settings_btn.pressed.connect(GameSettings.request_toggle_menu)
-
-
 func _process(_delta: float) -> void:
 	_bar_fill.size.x = roundf(_bar_width * player.get_dash_ready_ratio())
+	for n in _skill_fills.size():
+		var i := _skill_slots[n]
+		var ratio := player.get_skill_ready_ratio(i)
+		var fill := _skill_fills[n]
+		var ready := ratio >= 1.0
+		fill.size.x = roundf((SKILL_SLOT_SIZE.x - 2.0) * ratio)
+		fill.color = SKILL_READY if ready else SKILL_CHARGING
+		if ready and not _skill_was_ready[n]:
+			_flash(fill)
+		_skill_was_ready[n] = ready
 
 
 func _on_health_changed(hp: int, max_hp: int) -> void:
@@ -90,3 +91,31 @@ func _build_digits() -> void:
 		var slot := TextureRect.new()
 		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_digits.add_child(slot)
+
+
+func _build_skill_slots() -> void:
+	for i in player.get_skill_count():
+		if player.get_skill_cooldown(i) <= 0.0:
+			continue   # no cooldown, nothing to show
+		var bg := ColorRect.new()
+		bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bg.color = SKILL_BG
+		bg.position = SKILL_SLOT_POS + Vector2(_skill_slots.size() * (SKILL_SLOT_SIZE.x + SKILL_SLOT_GAP), 0)
+		bg.size = SKILL_SLOT_SIZE
+		add_child(bg)
+		var fill := ColorRect.new()
+		fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		fill.position = Vector2.ONE
+		fill.size = SKILL_SLOT_SIZE - Vector2(2, 2)
+		fill.color = SKILL_READY
+		bg.add_child(fill)
+		_skill_fills.append(fill)
+		_skill_was_ready.append(true)
+		_skill_slots.append(i)
+
+
+## Brief white blink when a skill comes off cooldown.
+func _flash(fill: ColorRect) -> void:
+	fill.modulate = Color(2.0, 2.0, 2.0)
+	var tw := create_tween()
+	tw.tween_property(fill, "modulate", Color.WHITE, 0.25)

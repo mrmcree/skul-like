@@ -1,0 +1,23 @@
+{
+ "frames": [],
+ "meta": {
+  "app": "https://github.com/patch-gg/pixelfx",
+  "image": "skill_spin.png",
+  "pixelfx": {
+   "id": "melee/spin-slash (front layer)",
+   "fps": 30,
+   "loop": false,
+   "frames": 22,
+   "frameSize": [
+    180,
+    101
+   ],
+   "pivot": [
+    78,
+    82
+   ],
+   "columns": 4,
+   "density": 2.0
+  }
+ }
+}
