@@ -16,6 +16,7 @@ config/features=PackedStringArray("4.5", "GL Compatibility")
 
 [autoload]
 
+GameSettings="*res://scripts/autoload/game_settings.gd"
 GameFeel="*res://scripts/autoload/game_feel.gd"
 Sfx="*res://scripts/autoload/sfx.gd"
 

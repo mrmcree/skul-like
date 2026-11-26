@@ -41,13 +41,13 @@ func on_swing(attack: AttackData, combo_index: int) -> void:
 	match combo_index:
 		0:
 			Vfx.spawn("slash_1", _world(), feet + Vector2(facing * 8.0, -14.0), facing, 5)
-			Sfx.play("katana_slash_1", -2.0, 0.06)
+			Sfx.play("katana_slash_1", -11.0, 0.06)
 		1:
 			Vfx.spawn("slash_2", _world(), feet + Vector2(facing * 2.0, -19.0), facing, 5)
-			Sfx.play("katana_slash_2", -2.0, 0.06)
+			Sfx.play("katana_slash_2", -11.0, 0.06)
 		_:
 			Vfx.spawn("slash_3", _world(), feet + Vector2(facing * 12.0, -18.0), facing, 5)
-			Sfx.play("katana_thrust", -1.0, 0.05)
+			Sfx.play("katana_thrust", -9.5, 0.05)
 
 
 ## Impact: freeze, shake toward the hit, sound, sparks (bigger for heavy hits).
@@ -55,7 +55,7 @@ func on_hit(target: Hurtbox, attack: AttackData) -> void:
 	var facing := _player.facing
 	GameFeel.hit_stop(attack.hit_stop)
 	GameFeel.shake(attack.shake_strength, 0.2 if attack.heavy else 0.1, Vector2(facing, 0))
-	Sfx.play("hit_heavy" if attack.heavy else "hit_light")
+	Sfx.play("hit_heavy" if attack.heavy else "hit_light", -6.5 if attack.heavy else -8.0)
 	var at := Vector2(target.global_position.x - facing * 6.0, target.global_position.y - 16.0)
 	Vfx.spawn("hit_crit" if attack.heavy else "hit_spark", _world(), at, facing, 6)
 	ImpactBurst.spawn(_world(), at, facing, attack.heavy)
@@ -65,7 +65,7 @@ func on_hit(target: Hurtbox, attack: AttackData) -> void:
 func on_hurt(hit: HitInfo) -> void:
 	GameFeel.hit_stop(maxf(hit.hit_stop, 0.08))
 	GameFeel.shake(2.5, 0.2, Vector2(hit.direction, 0))
-	Sfx.play("spear_hit", -1.0, 0.06)
+	Sfx.play("spear_hit", -8.5, 0.06)
 	var at := _player.global_position + Vector2(0, -14)
 	ImpactBurst.spawn(_world(), at, hit.direction, false)
 

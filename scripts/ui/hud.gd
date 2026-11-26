@@ -18,15 +18,38 @@ var _digit_textures: Array[AtlasTexture] = []
 @onready var _hearts: HBoxContainer = $Hearts
 @onready var _bar_fill: ColorRect = $Bar/Fill
 @onready var _digits: HBoxContainer = $Coins/Digits
+@onready var _settings_btn: Button = $SettingsBtn
 @onready var _bar_width := _bar_fill.size.x
 
 
 func _ready() -> void:
 	_build_digits()
+	_style_settings_button()
 	player.health.changed.connect(_on_health_changed)
 	player.coins_changed.connect(_on_coins_changed)
 	_on_health_changed(player.health.hp, player.health.max_hp)
 	_on_coins_changed(player.coins)
+
+
+func _style_settings_button() -> void:
+	var font := SystemFont.new()
+	font.font_names = PackedStringArray(["Microsoft YaHei", "SimHei", "PingFang SC", "Noto Sans CJK SC", "sans-serif"])
+	_settings_btn.add_theme_font_override("font", font)
+	_settings_btn.add_theme_font_size_override("font_size", 7)
+	_settings_btn.add_theme_color_override("font_color", Color(0.95, 0.91, 0.85, 1.0))
+	_settings_btn.add_theme_color_override("font_hover_color", Color(0.95, 0.82, 0.48, 1.0))
+	var norm := StyleBoxFlat.new()
+	norm.bg_color = Color(0.13, 0.12, 0.16, 0.86)
+	norm.border_color = Color(0.91, 0.85, 0.67, 0.9)
+	norm.set_border_width_all(1)
+	norm.set_corner_radius_all(2)
+	var hover := norm.duplicate() as StyleBoxFlat
+	hover.bg_color = Color(0.24, 0.21, 0.30, 0.95)
+	hover.border_color = Color(0.95, 0.82, 0.48, 1.0)
+	_settings_btn.add_theme_stylebox_override("normal", norm)
+	_settings_btn.add_theme_stylebox_override("hover", hover)
+	_settings_btn.add_theme_stylebox_override("pressed", hover)
+	_settings_btn.pressed.connect(GameSettings.request_toggle_menu)
 
 
 func _process(_delta: float) -> void:

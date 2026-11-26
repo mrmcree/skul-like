@@ -58,3 +58,11 @@ texture = ExtResource("4_coin")
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 0
+
+[node name="SettingsBtn" type="Button" parent="."]
+offset_left = 442.0
+offset_top = 20.0
+offset_right = 474.0
+offset_bottom = 34.0
+focus_mode = 0
+text = "设置"

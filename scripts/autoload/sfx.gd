@@ -5,6 +5,17 @@ extends Node
 
 const SFX_DIR := "res://assets/sfx/"
 const VOICES := 12
+const WEAPON_SOUNDS := {
+	"katana_slash_1": true,
+	"katana_slash_2": true,
+	"katana_thrust": true,
+	"spear_thrust": true,
+	"spear_hit": true,
+	"hit_light": true,
+	"hit_heavy": true,
+	"swing_light": true,
+	"swing_heavy": true,
+}
 
 var _streams: Dictionary = {}
 var _players: Array[AudioStreamPlayer] = []
@@ -19,15 +30,27 @@ func _ready() -> void:
 		_players.append(player)
 
 
+func get_effective_volume_db(sound: String, base_db: float) -> float:
+	var mult := GameSettings.sfx_volume
+	if WEAPON_SOUNDS.has(sound):
+		mult *= GameSettings.weapon_volume
+	if mult <= 0.001:
+		return -80.0
+	return base_db + linear_to_db(mult)
+
+
 ## Play a sound with slight random pitch so repeated hits don't sound robotic.
 func play(sound: String, volume_db := 0.0, pitch_jitter := 0.08) -> void:
+	var effective_db := get_effective_volume_db(sound, volume_db)
+	if effective_db <= -79.0:
+		return
 	var stream := _get_stream(sound)
 	if stream == null:
 		return
 	var player := _players[_next]
 	_next = (_next + 1) % VOICES
 	player.stream = stream
-	player.volume_db = volume_db
+	player.volume_db = effective_db
 	player.pitch_scale = 1.0 + randf_range(-pitch_jitter, pitch_jitter)
 	player.play()
 

@@ -11,7 +11,7 @@ var _hit_stop_active := false
 
 
 func hit_stop(duration: float) -> void:
-	if duration <= 0.0 or _hit_stop_active:
+	if not GameSettings.hit_stop_enabled or duration <= 0.0 or _hit_stop_active:
 		return
 	_hit_stop_active = true
 	Engine.time_scale = HIT_STOP_TIME_SCALE
@@ -23,5 +23,6 @@ func hit_stop(duration: float) -> void:
 
 ## `direction` kicks the camera that way first (e.g. the direction of the hit).
 func shake(strength: float, duration: float, direction := Vector2.ZERO) -> void:
-	if strength > 0.0:
-		shake_requested.emit(strength, duration, direction)
+	var scaled := strength * GameSettings.shake_scale
+	if scaled > 0.0:
+		shake_requested.emit(scaled, duration, direction)
