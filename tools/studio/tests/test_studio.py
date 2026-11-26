@@ -14,7 +14,7 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from studio import prompts, qc, repo  # noqa: E402
+from studio import llm, prompts, qc, repo  # noqa: E402
 
 CELL = (32, 32)
 ANCHOR = (16, 30)
@@ -176,3 +176,20 @@ def test_api_prompts_and_presets():
     bad = client.post("/api/prompts", json={"kind": "character", "subject": "", "actions": []})
     assert bad.status_code == 400
     assert client.get("/api/assets/..%2Fetc").status_code in (400, 404)
+
+
+# --- LLM helpers (no network) ----------------------------------------------------
+
+def test_llm_json_from_wrapped_reply():
+    assert llm.json_from('好的：\n```json\n{"subject": "骷髅"}\n```') == {"subject": "骷髅"}
+    with pytest.raises(llm.LlmError):
+        llm.json_from("没有 JSON")
+
+
+def test_llm_ensure_rules():
+    original = prompts.character_sheets("骷髅", prompts.PRESETS["近战小怪"])[0]["prompt"]
+    rows = "，".join(llm.ROW_RE.findall(original))
+    fixed, warnings = llm.ensure_rules(original, f"更好的骷髅，{rows}")
+    assert "#00FF00" in fixed and warnings
+    kept, warnings = llm.ensure_rules(original, "改掉了行数的提示词")
+    assert kept == original and warnings

@@ -174,7 +174,7 @@ func _process_attack(delta: float) -> void:
 			_hitbox_opened = true
 			velocity.x = facing * attack_data.forward_step
 			_hitbox.activate(attack_data, facing)
-			Sfx.play("swing_heavy", -4.0, 0.15)
+			Sfx.play("spear_thrust", -3.0, 0.10)
 		_sprite.frame = _pick(ACTIVE_FRAMES, (t - attack_data.startup) / attack_data.active)
 	elif t < active_end + attack_data.recovery:
 		_hitbox.deactivate()

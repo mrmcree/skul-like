@@ -40,7 +40,8 @@ func _ready() -> void:
 	sprite_frames = _get_frames(effect, info)
 	centered = false
 	offset = -(info["pivot"] as Vector2)
-	scale.x = 1.0 if facing >= 0 else -1.0
+	var inv := 1.0 / float(info.get("density", 1.0))
+	scale = Vector2(inv if facing >= 0 else -inv, inv)
 	animation = &"default"
 	if info["loop"]:
 		frame = randi() % int(info["frames"])

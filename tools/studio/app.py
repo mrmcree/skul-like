@@ -18,13 +18,18 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import prompts, repo, runner
+from . import llm, prompts, repo, runner
 
 STATIC = Path(__file__).parent / "static"
+# React frontend (tools/studio/web). Build it with `npm run build`; until then the
+# old static page is served.
+WEB_DIST = Path(__file__).parent / "web" / "dist"
 
 app = FastAPI(title="Asset Studio")
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 app.mount("/files", StaticFiles(directory=repo.ASSETS), name="files")
+if (WEB_DIST / "studio-assets").is_dir():
+    app.mount("/studio-assets", StaticFiles(directory=WEB_DIST / "studio-assets"), name="web")
 
 
 def _bad_request(err: Exception) -> HTTPException:
@@ -33,7 +38,8 @@ def _bad_request(err: Exception) -> HTTPException:
 
 @app.get("/")
 def index() -> FileResponse:
-    return FileResponse(STATIC / "index.html")
+    built = WEB_DIST / "index.html"
+    return FileResponse(built if built.exists() else STATIC / "index.html")
 
 
 @app.get("/api/assets")
@@ -132,3 +138,50 @@ def make_prompts(body: PromptBody) -> dict:
     actions = [prompts.Action(a.name, a.frames, a.description) for a in body.actions]
     sheets = prompts.character_sheets(body.subject, actions, body.style)
     return {"prompts": sheets, "config": prompts.character_config(sheets, actions, body.target_height)}
+
+
+# --- SiliconFlow (硅基流动) LLM -------------------------------------------------
+
+def _llm_error(err: Exception) -> HTTPException:
+    return HTTPException(status_code=502, detail=str(err))
+
+
+class ExpandBody(BaseModel):
+    kind: Literal["character", "environment"]
+    idea: str = Field(min_length=1, max_length=400)
+    model: str = Field(default="", max_length=120)
+
+
+class RefineBody(BaseModel):
+    prompt: str = Field(min_length=1, max_length=3000)
+    instruction: str = Field(default="", max_length=300)
+    model: str = Field(default="", max_length=120)
+
+
+@app.get("/api/llm/status")
+def llm_status() -> dict:
+    return llm.status()
+
+
+@app.get("/api/llm/models")
+def llm_models() -> dict:
+    try:
+        return {"models": llm.list_models()}
+    except llm.LlmError as err:
+        raise _llm_error(err) from err
+
+
+@app.post("/api/llm/expand")
+def llm_expand(body: ExpandBody) -> dict:
+    try:
+        return llm.expand(body.kind, body.idea, body.model or None)
+    except llm.LlmError as err:
+        raise _llm_error(err) from err
+
+
+@app.post("/api/llm/refine")
+def llm_refine(body: RefineBody) -> dict:
+    try:
+        return llm.refine(body.prompt, body.instruction, body.model or None)
+    except llm.LlmError as err:
+        raise _llm_error(err) from err

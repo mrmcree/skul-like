@@ -18,4 +18,7 @@ const EFFECTS := {
 	"puff": {"frame_size": Vector2i(32, 27), "frames": 22, "columns": 22, "fps": 36.0, "loop": false, "pivot": Vector2(14, 24)},
 	"slash_heavy": {"frame_size": Vector2i(66, 50), "frames": 14, "columns": 14, "fps": 40.0, "loop": false, "pivot": Vector2(21, 49)},
 	"slash_light": {"frame_size": Vector2i(54, 44), "frames": 12, "columns": 12, "fps": 40.0, "loop": false, "pivot": Vector2(18, 42)},
+	"slash_1": {"frame_size": Vector2i(92, 44), "frames": 5, "columns": 5, "fps": 32.0, "loop": false, "pivot": Vector2(20, 22), "density": 2.0},
+	"slash_2": {"frame_size": Vector2i(68, 84), "frames": 5, "columns": 5, "fps": 32.0, "loop": false, "pivot": Vector2(18, 48), "density": 2.0},
+	"slash_3": {"frame_size": Vector2i(120, 56), "frames": 5, "columns": 5, "fps": 28.0, "loop": false, "pivot": Vector2(18, 28), "density": 2.0},
 }

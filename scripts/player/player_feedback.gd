@@ -34,19 +34,20 @@ func on_dash(on_floor: bool) -> void:
 	Sfx.play("dash", -3.0)
 
 
-## The samurai sheet already draws its slash arcs, so light hits only need sound.
-## The heavy stab gets a speed streak along the blade.
+## Spawn the matching 2x katana trail in world space and trigger per-hit katana audio.
 func on_swing(attack: AttackData, combo_index: int) -> void:
 	var facing := _player.facing
 	var feet := _player.global_position
-	if attack.heavy:
-		Vfx.spawn("slash_heavy", _player, feet + Vector2(facing * 6.0, 2.0), facing, 5)
-	else:
-		var arc := Vfx.spawn("slash_light", _player, feet + Vector2(facing * 4.0, 0.0), facing, 5)
-		if arc and combo_index == 1:
-			# Second hit is an upward cut: tilt the arc up (mirrors with facing).
-			arc.rotation = -0.7 * facing
-	Sfx.play("swing_heavy" if attack.heavy else "swing_light", -2.0)
+	match combo_index:
+		0:
+			Vfx.spawn("slash_1", _world(), feet + Vector2(facing * 8.0, -14.0), facing, 5)
+			Sfx.play("katana_slash_1", -2.0, 0.06)
+		1:
+			Vfx.spawn("slash_2", _world(), feet + Vector2(facing * 2.0, -19.0), facing, 5)
+			Sfx.play("katana_slash_2", -2.0, 0.06)
+		_:
+			Vfx.spawn("slash_3", _world(), feet + Vector2(facing * 12.0, -18.0), facing, 5)
+			Sfx.play("katana_thrust", -1.0, 0.05)
 
 
 ## Impact: freeze, shake toward the hit, sound, sparks (bigger for heavy hits).
@@ -64,7 +65,7 @@ func on_hit(target: Hurtbox, attack: AttackData) -> void:
 func on_hurt(hit: HitInfo) -> void:
 	GameFeel.hit_stop(maxf(hit.hit_stop, 0.08))
 	GameFeel.shake(2.5, 0.2, Vector2(hit.direction, 0))
-	Sfx.play("hit_heavy", 0.0, 0.03)
+	Sfx.play("spear_hit", -1.0, 0.06)
 	var at := _player.global_position + Vector2(0, -14)
 	ImpactBurst.spawn(_world(), at, hit.direction, false)
 

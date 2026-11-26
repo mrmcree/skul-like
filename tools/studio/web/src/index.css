@@ -1,0 +1,98 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: #0e0d12;
+  --foreground: #ebe8f1;
+  --card: #15141b;
+  --card-foreground: #ebe8f1;
+  --popover: #1a1922;
+  --popover-foreground: #ebe8f1;
+  --primary: #e0485f;
+  --primary-foreground: #ffffff;
+  --secondary: #23212c;
+  --secondary-foreground: #ebe8f1;
+  --muted: #1d1b25;
+  --muted-foreground: #8a8597;
+  --accent: #25232e;
+  --accent-foreground: #ebe8f1;
+  --destructive: #ff5d6c;
+  --border: #282632;
+  --input: #2c2a36;
+  --ring: #e0485f;
+  --success: #5fd08a;
+  --warning: #f2b84b;
+  --info: #7fb3ff;
+  --radius: 0.5rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --font-sans: "Inter", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", Consolas, "Microsoft YaHei", monospace;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-size: 13px;
+    overflow: hidden;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 35%, transparent);
+  }
+}
+
+@utility pixelated {
+  image-rendering: pixelated;
+}
+
+@utility checker {
+  background-color: #24222c;
+  background-image:
+    linear-gradient(45deg, #2d2b37 25%, transparent 25%),
+    linear-gradient(-45deg, #2d2b37 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #2d2b37 75%),
+    linear-gradient(-45deg, transparent 75%, #2d2b37 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
+@utility stage-dots {
+  background-color: #0b0a0f;
+  background-image: radial-gradient(circle, #23212b 1px, transparent 1px);
+  background-size: 20px 20px;
+}

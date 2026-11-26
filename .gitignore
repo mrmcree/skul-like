@@ -4,3 +4,14 @@
 # Export output
 /build/
 /export/
+
+# Asset Studio web frontend
+tools/studio/web/node_modules/
+tools/studio/web/dist/
+# Local API keys (SiliconFlow) - never commit
+tools/studio/.env
+
+# Python cache
+__pycache__/
+*.pyc
+.pytest_cache/

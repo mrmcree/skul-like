@@ -26,6 +26,8 @@ const ATTACK_ANIMS: Array[StringName] = [&"attack_1", &"attack_2", &"attack_3"]
 ## Frames shown during [wind-up, swing, follow-through] for each attack row.
 const DEFAULT_PHASES := [[0, 1], [2, 3], [4, 5]]
 const ATTACK_PHASES := {
+	# Horizontal cut peaks on frame 2; frame 3 already pulls the blade back.
+	&"attack_1": [[0, 1], [2], [3, 4, 5]],
 	# The thrust row pulls back for three frames and only stabs on frame 3.
 	&"attack_3": [[0, 1, 2], [3], [4, 5]],
 }

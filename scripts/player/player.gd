@@ -45,6 +45,8 @@ const DEFAULT_COMBO_PATHS: Array[String] = [
 @export var attack_buffer_time := 0.15
 ## Max fall speed while attacking in the air (Skul-style hang time).
 @export var air_attack_fall_speed := 30.0
+## Number of single air slashes allowed before touching the ground (0 = disable air attack).
+@export var max_air_attacks := 1
 
 @export_group("Damage")
 ## Seconds without control after being hit.
@@ -67,9 +69,11 @@ var _dash_cooldown_timer := 0.0
 var _drop_timer := 0.0
 var _air_jumps_left := 0
 var _air_dashes_left := 0
+var _air_attacks_left := 0
 var _combo_index := 0
 var _attack_time := 0.0
 var _hitbox_opened := false
+var _attack_in_air := false
 ## Starts true so spawning on the ground doesn't play a landing effect.
 var _was_on_floor := true
 var _squash_tween: Tween
@@ -87,6 +91,7 @@ var _fx := PlayerFeedback.new(self)
 func _ready() -> void:
 	add_to_group("player")
 	_spawn_position = global_position
+	_air_attacks_left = max_air_attacks
 	if combo.is_empty():
 		for path in DEFAULT_COMBO_PATHS:
 			combo.append(load(path) as AttackData)
@@ -167,7 +172,7 @@ func _process_normal(delta: float) -> void:
 
 	if Input.is_action_just_pressed("dash") and _try_start_dash():
 		return
-	if _attack_buffer_timer > 0.0:
+	if _attack_buffer_timer > 0.0 and (is_on_floor() or _air_attacks_left > 0):
 		_start_attack(0)
 
 
@@ -240,6 +245,7 @@ func _try_start_dash() -> bool:
 	if _input_x() != 0.0:
 		_set_facing(_input_x())
 	_hitbox.deactivate()
+	_attack_in_air = false
 	state = State.DASH
 	is_invincible = true
 	_dash_timer = dash_duration
@@ -271,10 +277,12 @@ func _start_attack(index: int) -> void:
 	if _input_x() != 0.0:
 		_set_facing(_input_x())
 	_sprite.play_attack(_combo_index)
-	if is_on_floor():
-		velocity.x = facing * combo[_combo_index].forward_step
-	else:
+	_attack_in_air = not is_on_floor()
+	if _attack_in_air:
+		_air_attacks_left = maxi(_air_attacks_left - 1, 0)
 		velocity.y = minf(velocity.y, 0.0)
+	else:
+		velocity.x = facing * combo[_combo_index].forward_step
 
 
 func _process_attack(delta: float) -> void:
@@ -291,13 +299,14 @@ func _process_attack(delta: float) -> void:
 	if _attack_time < active_end:
 		return
 
-	# Recovery phase: can chain the next hit or cancel into jump/dash.
+	# Recovery phase: can chain the next hit (grounded only) or cancel into jump/dash.
 	_hitbox.deactivate()
 	if _try_cancel_attack():
 		return
-	if _attack_buffer_timer > 0.0 and _combo_index < combo.size() - 1:
+	if not _attack_in_air and is_on_floor() and _attack_buffer_timer > 0.0 and _combo_index < combo.size() - 1:
 		_start_attack(_combo_index + 1)
 	elif _attack_time >= active_end + attack.recovery:
+		_attack_in_air = false
 		state = State.NORMAL
 
 
@@ -305,8 +314,10 @@ func _move_during_attack(delta: float) -> void:
 	if is_on_floor():
 		velocity.x = move_toward(velocity.x, 0.0, ground_friction * 0.5 * delta)
 	else:
+		var attack := combo[_combo_index]
+		var fall_limit := air_attack_fall_speed if _attack_time < attack.startup + attack.active else max_fall_speed
 		velocity.x = move_toward(velocity.x, _input_x() * run_speed * 0.5, air_accel * delta)
-		velocity.y = minf(velocity.y + gravity * delta, air_attack_fall_speed)
+		velocity.y = minf(velocity.y + gravity * delta, fall_limit)
 
 
 func _try_cancel_attack() -> bool:
@@ -329,6 +340,7 @@ func _on_hurt(hit: HitInfo) -> void:
 	if _hurtbox.invulnerable:
 		return
 	_hitbox.deactivate()
+	_attack_in_air = false
 	is_invincible = false
 	velocity = hit.knockback
 	_hit_reaction.react(hit)
@@ -352,6 +364,8 @@ func _process_stunned(delta: float) -> void:
 
 
 func _die() -> void:
+	_hitbox.deactivate()
+	_attack_in_air = false
 	state = State.DEAD
 	_sprite.play_pose(&"death")
 	_fx.on_death()
@@ -362,6 +376,8 @@ func _die() -> void:
 func _respawn() -> void:
 	global_position = _spawn_position
 	velocity = Vector2.ZERO
+	_attack_in_air = false
+	_air_attacks_left = max_air_attacks
 	state = State.NORMAL
 	health.restore()
 	_fx.on_respawn()
@@ -375,6 +391,11 @@ func _after_move() -> void:
 		_coyote_timer = coyote_time
 		_air_jumps_left = max_air_jumps
 		_air_dashes_left = max_air_dashes
+		_air_attacks_left = max_air_attacks
+		if state == State.ATTACK and _attack_in_air:
+			_hitbox.deactivate()
+			state = State.NORMAL
+			_attack_in_air = false
 		if not _was_on_floor:
 			_squash(Vector2(1.25, 0.8))
 			_fx.on_land()
