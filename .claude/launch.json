@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "asset-studio",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["tools/asset_studio.py"],
+      "port": 8765
+    }
+  ]
+}

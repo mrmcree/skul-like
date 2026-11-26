@@ -1,0 +1,70 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://scripts/combat/hitbox.gd" id="2_hitbox"]
+[ext_resource type="Script" path="res://scripts/player/player_sprite.gd" id="3_sprite"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="4_hurtbox"]
+[ext_resource type="Script" path="res://scripts/combat/hit_reaction.gd" id="5_reaction"]
+[ext_resource type="Script" path="res://scripts/player/player_health.gd" id="6_health"]
+
+[sub_resource type="RectangleShape2D" id="Shape_body"]
+size = Vector2(12, 26)
+
+[sub_resource type="RectangleShape2D" id="Shape_hitbox"]
+resource_local_to_scene = true
+size = Vector2(24, 18)
+
+[sub_resource type="RectangleShape2D" id="Shape_hurtbox"]
+size = Vector2(10, 24)
+
+[node name="Player" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 33
+script = ExtResource("1_player")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -13)
+shape = SubResource("Shape_body")
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="Body" type="Node2D" parent="Visual"]
+
+[node name="Sprite" type="AnimatedSprite2D" parent="Visual/Body"]
+script = ExtResource("3_sprite")
+
+[node name="Hitbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 16
+monitoring = false
+monitorable = false
+script = ExtResource("2_hitbox")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+position = Vector2(14, -11)
+shape = SubResource("Shape_hitbox")
+
+[node name="DebugRect" type="ColorRect" parent="Hitbox"]
+visible = false
+offset_right = 24.0
+offset_bottom = 18.0
+mouse_filter = 2
+color = Color(1, 0.35, 0.3, 0.45)
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+script = ExtResource("4_hurtbox")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -12)
+shape = SubResource("Shape_hurtbox")
+
+[node name="HitReaction" type="Node" parent="." node_paths=PackedStringArray("body")]
+script = ExtResource("5_reaction")
+body = NodePath("../Visual/Body")
+
+[node name="Health" type="Node" parent="." node_paths=PackedStringArray("blink_target")]
+script = ExtResource("6_health")
+blink_target = NodePath("../Visual")

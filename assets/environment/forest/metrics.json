@@ -1,0 +1,542 @@
+{
+  "far": {
+    "texels": [
+      340,
+      121
+    ],
+    "scale": 2.0,
+    "size": [
+      680,
+      242
+    ],
+    "surface": 0
+  },
+  "mid": {
+    "texels": [
+      1322,
+      340
+    ],
+    "scale": 0.5,
+    "size": [
+      661,
+      170
+    ],
+    "surface": 62
+  },
+  "ground": {
+    "texels": [
+      611,
+      140
+    ],
+    "scale": 0.5,
+    "size": [
+      306,
+      70
+    ],
+    "surface": 3
+  },
+  "platform_log": {
+    "texels": [
+      160,
+      73
+    ],
+    "scale": 0.5,
+    "size": [
+      80,
+      36
+    ],
+    "surface": 8
+  },
+  "platform_wood": {
+    "texels": [
+      160,
+      60
+    ],
+    "scale": 0.5,
+    "size": [
+      80,
+      30
+    ],
+    "surface": 4
+  },
+  "platform_stone": {
+    "texels": [
+      128,
+      57
+    ],
+    "scale": 0.5,
+    "size": [
+      64,
+      28
+    ],
+    "surface": 4
+  },
+  "torii_big": {
+    "texels": [
+      190,
+      168
+    ],
+    "scale": 0.5,
+    "size": [
+      95,
+      84
+    ],
+    "surface": 9
+  },
+  "torii_rope": {
+    "texels": [
+      122,
+      140
+    ],
+    "scale": 0.5,
+    "size": [
+      61,
+      70
+    ],
+    "surface": 9
+  },
+  "lantern_small": {
+    "texels": [
+      32,
+      52
+    ],
+    "scale": 0.5,
+    "size": [
+      16,
+      26
+    ],
+    "surface": 6
+  },
+  "lantern_big": {
+    "texels": [
+      47,
+      72
+    ],
+    "scale": 0.5,
+    "size": [
+      24,
+      36
+    ],
+    "surface": 8
+  },
+  "branch_big": {
+    "texels": [
+      156,
+      128
+    ],
+    "scale": 0.5,
+    "size": [
+      78,
+      64
+    ],
+    "surface": 10
+  },
+  "branch_small": {
+    "texels": [
+      107,
+      88
+    ],
+    "scale": 0.5,
+    "size": [
+      54,
+      44
+    ],
+    "surface": 8
+  },
+  "bushes": {
+    "texels": [
+      103,
+      56
+    ],
+    "scale": 0.5,
+    "size": [
+      52,
+      28
+    ],
+    "surface": 12
+  },
+  "log": {
+    "texels": [
+      66,
+      36
+    ],
+    "scale": 0.5,
+    "size": [
+      33,
+      18
+    ],
+    "surface": 6
+  },
+  "rock_tall": {
+    "texels": [
+      55,
+      56
+    ],
+    "scale": 0.5,
+    "size": [
+      28,
+      28
+    ],
+    "surface": 7
+  },
+  "grass_a": {
+    "texels": [
+      24,
+      24
+    ],
+    "scale": 0.5,
+    "size": [
+      12,
+      12
+    ],
+    "surface": 8
+  },
+  "fern": {
+    "texels": [
+      39,
+      28
+    ],
+    "scale": 0.5,
+    "size": [
+      20,
+      14
+    ],
+    "surface": 6
+  },
+  "mushrooms": {
+    "texels": [
+      47,
+      28
+    ],
+    "scale": 0.5,
+    "size": [
+      24,
+      14
+    ],
+    "surface": 10
+  },
+  "rocks_a": {
+    "texels": [
+      53,
+      32
+    ],
+    "scale": 0.5,
+    "size": [
+      26,
+      16
+    ],
+    "surface": 4
+  },
+  "rocks_flat": {
+    "texels": [
+      50,
+      20
+    ],
+    "scale": 0.5,
+    "size": [
+      25,
+      10
+    ],
+    "surface": 2
+  },
+  "rocks_b": {
+    "texels": [
+      53,
+      32
+    ],
+    "scale": 0.5,
+    "size": [
+      26,
+      16
+    ],
+    "surface": 4
+  },
+  "sign_post": {
+    "texels": [
+      19,
+      36
+    ],
+    "scale": 0.5,
+    "size": [
+      10,
+      18
+    ],
+    "surface": 1
+  },
+  "sign_arrow": {
+    "texels": [
+      29,
+      36
+    ],
+    "scale": 0.5,
+    "size": [
+      14,
+      18
+    ],
+    "surface": 2
+  },
+  "mossy_rock": {
+    "texels": [
+      57,
+      28
+    ],
+    "scale": 0.5,
+    "size": [
+      28,
+      14
+    ],
+    "surface": 3
+  },
+  "ruin_stairs_a": {
+    "texels": [
+      73,
+      44
+    ],
+    "scale": 0.5,
+    "size": [
+      36,
+      22
+    ],
+    "surface": 2
+  },
+  "grass_b": {
+    "texels": [
+      29,
+      28
+    ],
+    "scale": 0.5,
+    "size": [
+      14,
+      14
+    ],
+    "surface": 7
+  },
+  "ruin_stairs_b": {
+    "texels": [
+      72,
+      44
+    ],
+    "scale": 0.5,
+    "size": [
+      36,
+      22
+    ],
+    "surface": 5
+  },
+  "fence_a": {
+    "texels": [
+      55,
+      36
+    ],
+    "scale": 0.5,
+    "size": [
+      28,
+      18
+    ],
+    "surface": 5
+  },
+  "fence_b": {
+    "texels": [
+      51,
+      36
+    ],
+    "scale": 0.5,
+    "size": [
+      26,
+      18
+    ],
+    "surface": 8
+  },
+  "rock_c": {
+    "texels": [
+      52,
+      32
+    ],
+    "scale": 0.5,
+    "size": [
+      26,
+      16
+    ],
+    "surface": 3
+  },
+  "grass_c": {
+    "texels": [
+      29,
+      22
+    ],
+    "scale": 0.5,
+    "size": [
+      14,
+      11
+    ],
+    "surface": 6
+  },
+  "grass_d": {
+    "texels": [
+      27,
+      16
+    ],
+    "scale": 0.5,
+    "size": [
+      14,
+      8
+    ],
+    "surface": 4
+  },
+  "shrine_house": {
+    "texels": [
+      342,
+      240
+    ],
+    "scale": 0.5,
+    "size": [
+      171,
+      120
+    ],
+    "surface": 17
+  },
+  "torii_shrine": {
+    "texels": [
+      235,
+      216
+    ],
+    "scale": 0.5,
+    "size": [
+      118,
+      108
+    ],
+    "surface": 6
+  },
+  "cedar_trunk_a": {
+    "texels": [
+      240,
+      444
+    ],
+    "scale": 0.5,
+    "size": [
+      120,
+      222
+    ],
+    "surface": 198
+  },
+  "cedar_trunk_b": {
+    "texels": [
+      179,
+      444
+    ],
+    "scale": 0.5,
+    "size": [
+      90,
+      222
+    ],
+    "surface": 198
+  },
+  "lantern_shrine": {
+    "texels": [
+      73,
+      128
+    ],
+    "scale": 0.5,
+    "size": [
+      36,
+      64
+    ],
+    "surface": 12
+  },
+  "lantern_path": {
+    "texels": [
+      49,
+      88
+    ],
+    "scale": 0.5,
+    "size": [
+      24,
+      44
+    ],
+    "surface": 10
+  },
+  "torii_stairs": {
+    "texels": [
+      116,
+      92
+    ],
+    "scale": 0.5,
+    "size": [
+      58,
+      46
+    ],
+    "surface": 4
+  },
+  "shrine_fence": {
+    "texels": [
+      77,
+      40
+    ],
+    "scale": 0.5,
+    "size": [
+      38,
+      20
+    ],
+    "surface": 6
+  },
+  "stone_stele": {
+    "texels": [
+      76,
+      128
+    ],
+    "scale": 0.5,
+    "size": [
+      38,
+      64
+    ],
+    "surface": 52
+  },
+  "stone_marker": {
+    "texels": [
+      57,
+      68
+    ],
+    "scale": 0.5,
+    "size": [
+      28,
+      34
+    ],
+    "surface": 4
+  },
+  "sakura_branch": {
+    "texels": [
+      270,
+      200
+    ],
+    "scale": 0.5,
+    "size": [
+      135,
+      100
+    ],
+    "surface": 35
+  },
+  "fg_foliage_a": {
+    "texels": [
+      125,
+      88
+    ],
+    "scale": 0.5,
+    "size": [
+      62,
+      44
+    ],
+    "surface": 20
+  },
+  "fg_foliage_b": {
+    "texels": [
+      102,
+      76
+    ],
+    "scale": 0.5,
+    "size": [
+      51,
+      38
+    ],
+    "surface": 24
+  }
+}

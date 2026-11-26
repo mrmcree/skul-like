@@ -1,0 +1,7 @@
+"crimson Samurai" by Burrito (immortal-burrito)
+Source: https://immortal-burrito.itch.io/crimson-samurai
+License: Creative Commons Zero v1.0 Universal (CC0) - no attribution required.
+
+Sheet layout (samurai.png, 640x320): 5 columns x 5 rows, 128x64 per frame, faces right,
+feet at (62, 48) inside each frame.
+  row 0: walk (5)   row 1: slash (4)   row 2: upward slash (4)   row 3: stab (4)   row 4: kneel/death (4)

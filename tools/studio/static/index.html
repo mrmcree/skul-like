@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Asset Studio</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Asset Studio</h1>
+    <nav class="tabs" id="main-tabs">
+      <button data-tab="assets" class="active">素材</button>
+      <button data-tab="prompts">提示词生成</button>
+    </nav>
+    <span class="hint">本地工具 · 只监听 127.0.0.1</span>
+  </header>
+
+  <main id="tab-assets" class="tab-page active">
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <span>素材</span>
+        <button id="refresh-assets" class="ghost" title="刷新">↻</button>
+      </div>
+      <ul id="asset-list"></ul>
+      <form id="new-asset" class="new-asset">
+        <input name="name" placeholder="新素材名，如 archer" required>
+        <button>新建</button>
+      </form>
+    </aside>
+
+    <section class="workspace" id="workspace">
+      <div class="empty" id="no-asset">← 选一个素材，或新建一个</div>
+      <div id="asset-view" hidden>
+        <div class="asset-head">
+          <h2 id="asset-title"></h2>
+          <span class="badge" id="asset-kind"></span>
+          <span class="qc-summary" id="qc-summary"></span>
+          <div class="spacer"></div>
+          <button id="btn-qc" class="ghost">重新质检</button>
+          <button id="btn-process">处理</button>
+        </div>
+        <nav class="subtabs" id="sub-tabs">
+          <button data-sub="play" class="active">播放</button>
+          <button data-sub="qc">质检</button>
+          <button data-sub="config">配置</button>
+          <button data-sub="raw">原图</button>
+        </nav>
+
+        <div class="sub-page active" id="sub-play">
+          <div id="sprite-player">
+            <div class="player-layout">
+              <ul class="row-list" id="row-list"></ul>
+              <div class="stage">
+                <div class="canvas-wrap" id="canvas-wrap"><canvas id="player-canvas"></canvas></div>
+                <div class="controls">
+                  <button id="pl-prev" class="ghost" title="上一帧">⏮</button>
+                  <button id="pl-play">⏸</button>
+                  <button id="pl-next" class="ghost" title="下一帧">⏭</button>
+                  <label>FPS <input id="pl-fps" type="number" min="1" max="60" value="10"></label>
+                  <label>缩放 <select id="pl-zoom"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>6</option></select></label>
+                  <label>背景 <select id="pl-bg"><option value="dark">深色</option><option value="checker">棋盘格</option><option value="forest">森林</option><option value="light">浅色</option></select></label>
+                  <label><input id="pl-onion" type="checkbox"> 洋葱皮</label>
+                  <label><input id="pl-anchor" type="checkbox" checked> 锚点</label>
+                  <label><input id="pl-flip" type="checkbox"> 镜像</label>
+                  <span class="frame-info" id="pl-info"></span>
+                </div>
+                <div class="strip" id="frame-strip"></div>
+              </div>
+            </div>
+          </div>
+          <div id="env-gallery" class="env-gallery" hidden></div>
+          <p class="empty" id="no-output" hidden>还没有处理结果。上传原图、保存配置后点「处理」。</p>
+        </div>
+
+        <div class="sub-page" id="sub-qc">
+          <table class="qc-table"><thead><tr><th>级别</th><th>位置</th><th>问题</th></tr></thead><tbody id="qc-body"></tbody></table>
+          <p class="empty" id="qc-empty" hidden>没有发现问题 ✓</p>
+        </div>
+
+        <div class="sub-page" id="sub-config">
+          <div class="config-bar">
+            <label>类型 <select id="cfg-kind"><option value="sprite">角色/敌人 (sprite.json)</option><option value="env">关卡环境 (env.json)</option></select></label>
+            <button id="cfg-save">保存配置</button>
+            <span class="status" id="cfg-status"></span>
+          </div>
+          <textarea id="cfg-text" spellcheck="false"></textarea>
+        </div>
+
+        <div class="sub-page" id="sub-raw">
+          <div class="dropzone" id="dropzone">把即梦生成的图片拖到这里，或 <label class="link">选择文件<input id="raw-input" type="file" accept=".png,.jpg,.jpeg,.webp" multiple hidden></label></div>
+          <div class="raw-grid" id="raw-grid"></div>
+        </div>
+
+        <details class="log" id="log-box"><summary>处理日志</summary><pre id="log"></pre></details>
+      </div>
+    </section>
+  </main>
+
+  <main id="tab-prompts" class="tab-page">
+    <section class="prompt-form">
+      <label>类型
+        <select id="pr-kind"><option value="character">角色 / 敌人动作表</option><option value="environment">关卡环境</option></select>
+      </label>
+      <div id="pr-character">
+        <label>角色描述<textarea id="pr-subject" rows="3" placeholder="例：年轻女武士，黑色高马尾配红色发带，红色羽织外衣，身后飘动的红色围巾，深色袴裤，右手持武士太刀"></textarea></label>
+        <label>动作预设 <select id="pr-preset"></select></label>
+        <table class="actions"><thead><tr><th>动画名</th><th>帧数</th><th>动作描述</th><th></th></tr></thead><tbody id="pr-actions"></tbody></table>
+        <button id="pr-add" class="ghost">+ 添加动作</button>
+        <label>游戏内高度（纹素） <input id="pr-height" type="number" min="16" max="256" value="60"></label>
+      </div>
+      <div id="pr-environment" hidden>
+        <label>关卡主题<input id="pr-theme" placeholder="例：日式和风森林，黄昏，薄雾，深青绿色和暮紫色"></label>
+        <label>装饰物件<input id="pr-items" placeholder="例：鸟居、石灯笼、灌木、倒木、岩石"></label>
+      </div>
+      <label>画风<input id="pr-style"></label>
+      <button id="pr-generate">生成提示词</button>
+      <span class="status" id="pr-status"></span>
+    </section>
+    <section class="prompt-output" id="pr-output"></section>
+  </main>
+
+  <script src="/static/player.js"></script>
+  <script src="/static/prompts.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

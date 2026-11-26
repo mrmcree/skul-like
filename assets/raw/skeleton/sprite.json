@@ -1,0 +1,46 @@
+{
+  "cell": [
+    160,
+    96
+  ],
+  "anchor": [
+    80,
+    90
+  ],
+  "target_height": 64,
+  "palette_colors": 32,
+  "torso_hue": [
+    0.92,
+    0.04
+  ],
+  "strips": [
+    {
+      "name": "idle",
+      "file": "Idle.png",
+      "frames": 6,
+      "watermark": true
+    },
+    {
+      "name": "walk",
+      "file": "Walk.png",
+      "frames": 6,
+      "watermark": true
+    },
+    {
+      "name": "attack",
+      "file": "Attack.jpg",
+      "frames": 6
+    },
+    {
+      "name": "hit",
+      "file": "Hit.jpg",
+      "frames": 6
+    },
+    {
+      "name": "death",
+      "file": "Death.jpg",
+      "frames": 6,
+      "scale_from": "attack"
+    }
+  ]
+}

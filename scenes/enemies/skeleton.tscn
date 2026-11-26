@@ -1,0 +1,80 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/skeleton.gd" id="1_skeleton"]
+[ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="2_hurtbox"]
+[ext_resource type="Script" path="res://scripts/combat/hit_reaction.gd" id="3_reaction"]
+[ext_resource type="Script" path="res://scripts/enemies/skeleton_sprite.gd" id="4_sprite"]
+[ext_resource type="Script" path="res://scripts/combat/hitbox.gd" id="5_hitbox"]
+
+[sub_resource type="RectangleShape2D" id="Shape_body"]
+size = Vector2(14, 28)
+
+[sub_resource type="RectangleShape2D" id="Shape_hurtbox"]
+size = Vector2(18, 30)
+
+[sub_resource type="RectangleShape2D" id="Shape_hitbox"]
+resource_local_to_scene = true
+size = Vector2(30, 12)
+
+[node name="Skeleton" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 33
+script = ExtResource("1_skeleton")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -14)
+shape = SubResource("Shape_body")
+
+[node name="Body" type="Node2D" parent="."]
+
+[node name="Sprite" type="AnimatedSprite2D" parent="Body"]
+script = ExtResource("4_sprite")
+
+[node name="HpBar" type="Node2D" parent="."]
+position = Vector2(0, -40)
+
+[node name="Back" type="ColorRect" parent="HpBar"]
+offset_left = -10.0
+offset_right = 10.0
+offset_bottom = 2.0
+mouse_filter = 2
+color = Color(0.15, 0.12, 0.16, 1)
+
+[node name="Fill" type="ColorRect" parent="HpBar"]
+offset_left = -10.0
+offset_right = 10.0
+offset_bottom = 2.0
+mouse_filter = 2
+color = Color(0.85, 0.25, 0.3, 1)
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 16
+collision_mask = 0
+monitoring = false
+script = ExtResource("2_hurtbox")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -15)
+shape = SubResource("Shape_hurtbox")
+
+[node name="Hitbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 8
+monitoring = false
+monitorable = false
+script = ExtResource("5_hitbox")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+position = Vector2(23, -18)
+shape = SubResource("Shape_hitbox")
+
+[node name="DebugRect" type="ColorRect" parent="Hitbox"]
+visible = false
+offset_right = 30.0
+offset_bottom = 12.0
+mouse_filter = 2
+color = Color(1, 0.35, 0.3, 0.45)
+
+[node name="HitReaction" type="Node" parent="." node_paths=PackedStringArray("body")]
+script = ExtResource("3_reaction")
+body = NodePath("../Body")

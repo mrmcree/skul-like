@@ -1,0 +1,60 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1_hud"]
+[ext_resource type="Texture2D" path="res://assets/ui/portrait.png" id="2_portrait"]
+[ext_resource type="Texture2D" path="res://assets/ui/bar_frame.png" id="3_bar"]
+[ext_resource type="Texture2D" path="res://assets/ui/coin.png" id="4_coin"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="Portrait" type="TextureRect" parent="."]
+offset_left = 6.0
+offset_top = 6.0
+offset_right = 32.0
+offset_bottom = 32.0
+mouse_filter = 2
+texture = ExtResource("2_portrait")
+
+[node name="Hearts" type="HBoxContainer" parent="."]
+offset_left = 36.0
+offset_top = 7.0
+offset_right = 96.0
+offset_bottom = 17.0
+mouse_filter = 2
+theme_override_constants/separation = 1
+
+[node name="Bar" type="TextureRect" parent="."]
+offset_left = 36.0
+offset_top = 21.0
+offset_right = 100.0
+offset_bottom = 28.0
+mouse_filter = 2
+texture = ExtResource("3_bar")
+
+[node name="Fill" type="ColorRect" parent="Bar"]
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 62.0
+offset_bottom = 5.0
+mouse_filter = 2
+color = Color(0.8, 0.78, 0.44, 1)
+
+[node name="Coins" type="HBoxContainer" parent="."]
+offset_left = 440.0
+offset_top = 7.0
+offset_right = 474.0
+offset_bottom = 16.0
+mouse_filter = 2
+theme_override_constants/separation = 2
+alignment = 2
+
+[node name="Icon" type="TextureRect" parent="Coins"]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("4_coin")
+
+[node name="Digits" type="HBoxContainer" parent="Coins"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
